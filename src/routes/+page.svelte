@@ -114,5 +114,7 @@
   <button on:click={login}>
     Login with Google
   </button>
+  <br />
+  <p>By creating an account, you confirm that you are 13 years or older.</p>
   {/if}
 </main>
