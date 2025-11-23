@@ -116,5 +116,6 @@
   </button>
   <br />
   <p>By creating an account, you confirm that you are 13 years or older.</p>
+  <a href="/privacy" class="underline text-blue-600">Read our Privacy Policy</a>.
   {/if}
 </main>
