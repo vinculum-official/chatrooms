@@ -1,0 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+/* Light Mode */
+main {
+  display: flex;
+  justify-content: center;   /* horizontal center */
+  align-items: center;       /* vertical center */
+  height: 100vh;             /* full screen height */
+  margin: 0;                 /* remove default margin */
+  flex-direction: column;    /* stack items top-to-bottom */
+  background-color: #f2ecce;
+  font-family: 'Bricolage Grotesque', sans-serif;
+}
+
+/* Dark Mode */
+main.selected {
+  display: flex;
+  justify-content: center;   /* horizontal center */
+  align-items: center;       /* vertical center */
+  height: 100vh;             /* full screen height */
+  margin: 0;                 /* remove default margin */
+  flex-direction: column;    /* stack items top-to-bottom */
+  background-color: #202020;
+  font-family: 'Bricolage Grotesque', sans-serif;
+  color: #f2ecce;
+}
+
+/* Wrapper */
+.wrapper {
+  background-color: rgba(242, 245, 235, 0.9);
+  padding: 30px;
+  border-radius: 15px;
+   box-shadow: 1px 1px 10px #1d1d20;
+   color: #1d1d20;
+  font-family: 'Bricolage Grotesque', sans-serif;
+}
+
+/* Wrapper (Dark Mode) */
+.wrapper.selected {
+  background-color: #1d1d1c;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 1px 1px 10px #f2ecce;
+  color: #f2ecce;
+  font-family: 'Bricolage Grotesque', sans-serif;
+}
+
+textarea {
+  background-color: rgba(238, 237, 237, 0.762);
+  box-shadow: 1px 1px 10px #1d1d2048;
+}
+
+  dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    border: none;
+    border-radius: 12px;
+    padding: 2rem 2.5rem;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+    background: var(--dlg-bg, rgba(238, 237, 237, 0.762));
+    color: var(--dlg-fg, #111);
+    width: min(90%, 400px);
+    text-align: center;
+    font-family: 'Bricolage Grotesque', sans-serif;
+  }
+
+  dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+  }
+
+  button {
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: none;
+    background: #cbcbb2;
+    color: #1d1d20;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease background;
+    font-family: 'Bricolage Grotesque', sans-serif;
+  }
+
+  button:hover {
+    background: #cdd9db;
+  }
