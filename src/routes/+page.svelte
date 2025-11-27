@@ -3,7 +3,7 @@
   import { browser } from '$app/environment'; // or remove if no alias
   import { auth, db } from '../lib/firebase.js';
   import { user, authLoading } from '../lib/stores.js';
-  import { GoogleAuthProvider, signInWithPopup, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'firebase/auth';
+  import { GoogleAuthProvider, GithubAuthProvider, signInWithPopup, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'firebase/auth';
   import Dialog from './Dialog.svelte';
   import { marked } from "marked";
   import { query, collection, where, getDocs, orderBy, serverTimestamp, addDoc, onSnapshot } from 'firebase/firestore';
@@ -53,15 +53,25 @@
     showDialog = false;
   }
 
-  async function login() {
+  async function loginWithGoogle() {
     if (!browser) return;
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
     } catch (e) {
-      console.error("Login error:", e);
+      console.error("loginWithGoogle error:", e);
     }
   }
+
+  async function loginWithGitHub() {
+  if (!browser) return;
+  const provider = new GithubAuthProvider();
+  try {
+    await signInWithPopup(auth, provider);
+  } catch (e) {
+    console.error("loginWithGitHub error:", e);
+  }
+}
 
   function listenToPosts() {
     if (!browser) return;
@@ -111,8 +121,11 @@
   <button on:click={openDialog}>New Post</button>
   {:else}
   <h2 class="text-2xl">welcome to <span class="font-semibold"><span class="[color:#7757FF]">simpl.</span><span class="[color:#1d1d20]">media</span></span></h2>
-  <button on:click={login}>
+  <button on:click={loginWithGoogle}>
     Login with Google
+  </button>
+  <button on:click={loginWithGitHub}>
+    Login with GitHub
   </button>
   <br />
   <p>By creating an account, you confirm that you are 13 years or older, and you agree to our Privacy Policy and TOS.</p>
