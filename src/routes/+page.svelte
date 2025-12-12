@@ -113,7 +113,7 @@
   {/if}
 
   {#each $posts as post}
-    <div class="p-2 border-b space-y-1">
+    <div class="p-2">
       <p><strong>{post.createdBy}</strong> • {new Date(post.createdAt?.seconds * 1000).toLocaleString()}</p>
       <p>{@html marked(post.text)}</p>
     </div>
