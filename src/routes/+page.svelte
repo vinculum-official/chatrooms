@@ -113,11 +113,21 @@
   {/if}
 
   {#each $posts as post}
-    <div class="p-2">
-      <p><strong>{post.createdBy}</strong> • {new Date(post.createdAt?.seconds * 1000).toLocaleString()}</p>
-      <p>{@html marked(post.text)}</p>
+  <div class="w-80 mx-auto my-4 p-4 rounded-lg shadow" style="background-color: #E5DFC4;">
+    <!-- Username + timestamp -->
+    <div class="flex justify-between text-sm mb-2">
+      <span>{post.createdBy}</span> @
+      <span>{post.createdAt?.seconds ? new Date(post.createdAt.seconds * 1000).toLocaleString() : 'Just now'}</span>
     </div>
+
+    <!-- Post content -->
+    <div class="markdown-body text-center">
+      {@html marked(post.text)}
+    </div>
+  </div>
   {/each}
+
+
   <button on:click={openDialog}>New Post</button>
   {:else}
   <h2 class="text-2xl">welcome to <span class="font-semibold"><span class="[color:#7757FF]">simpl.</span><span class="[color:#1d1d20]">media</span></span></h2>
