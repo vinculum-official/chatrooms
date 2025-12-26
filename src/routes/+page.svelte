@@ -104,32 +104,32 @@
     </Dialog>
     {/if}
   {#if currentUser}
+  <center>
     <h2><span class="font-semibold">Welcome back to <span class="[color:#7757FF]">simpl.</span><span class="[color:#1d1d20]">media</span>, {currentUser.displayName}!</span></h2>
     <br />
       <h2 class="text-2xl">Feed</h2>
+      <button on:click={openDialog}>New Post</button>
+  </center>
 
   {#if $posts.length === 0}
     <p>No posts yet.</p>
   {/if}
-
   {#each $posts as post}
-  <div class="w-80 mx-auto my-4 p-4 rounded-lg shadow" style="background-color: #E5DFC4;">
+  <div class=" mx-2 my-4 p-2 rounded-lg shadow" style="background-color: #E5DFC4;">
     <!-- Username + timestamp -->
     <div class="flex justify-between text-sm mb-2">
-      <span>{post.createdBy}</span> @
-      <span>{post.createdAt?.seconds ? new Date(post.createdAt.seconds * 1000).toLocaleString() : 'Just now'}</span>
+      <span>{post.createdBy}</span>
+      <span>@ {post.createdAt?.seconds ? new Date(post.createdAt.seconds * 1000).toLocaleString() : 'Just now'}</span>
     </div>
 
     <!-- Post content -->
-    <div class="markdown-body text-center">
+    <div class="markdown-body">
       {@html marked(post.text)}
     </div>
   </div>
   {/each}
-
-
-  <button on:click={openDialog}>New Post</button>
   {:else}
+
   <h2 class="text-2xl">welcome to <span class="font-semibold"><span class="[color:#7757FF]">simpl.</span><span class="[color:#1d1d20]">media</span></span></h2>
   <button on:click={loginWithGoogle}>
     Login with Google

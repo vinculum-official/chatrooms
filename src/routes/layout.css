@@ -4,48 +4,19 @@
 @plugin '@tailwindcss/typography';
 
 /* Light Mode */
-main {
-  display: flex;
-  justify-content: center;   /* horizontal center */
-  align-items: center;       /* vertical center */
-  height: 100vh;             /* full screen height */
+body {
   margin: 0;                 /* remove default margin */
   flex-direction: column;    /* stack items top-to-bottom */
   background-color: #f2ecce;
   font-family: 'Bricolage Grotesque', sans-serif;
 }
 
-/* Dark Mode */
-main.selected {
-  display: flex;
-  justify-content: center;   /* horizontal center */
-  align-items: center;       /* vertical center */
-  height: 100vh;             /* full screen height */
-  margin: 0;                 /* remove default margin */
-  flex-direction: column;    /* stack items top-to-bottom */
-  background-color: #202020;
-  font-family: 'Bricolage Grotesque', sans-serif;
-  color: #f2ecce;
+main {
+  height: 90vh;
 }
 
-/* Wrapper */
-.wrapper {
-  background-color: rgba(242, 245, 235, 0.9);
-  padding: 30px;
-  border-radius: 15px;
-   box-shadow: 1px 1px 10px #1d1d20;
-   color: #1d1d20;
-  font-family: 'Bricolage Grotesque', sans-serif;
-}
-
-/* Wrapper (Dark Mode) */
-.wrapper.selected {
-  background-color: #1d1d1c;
-  padding: 30px;
-  border-radius: 15px;
-  box-shadow: 1px 1px 10px #f2ecce;
-  color: #f2ecce;
-  font-family: 'Bricolage Grotesque', sans-serif;
+#h {
+  height: 50vh;
 }
 
 textarea {
