@@ -76,7 +76,12 @@
   function listenToPosts() {
     if (!browser) return;
 
-    const q = query(collection(db, "messages"), orderBy("createdAt"));
+    // posts ordered from newest to oldest
+
+    const q = query(
+  collection(db, "messages"),
+  orderBy("createdAt", "desc")
+  );
 
     onSnapshot(q, (snapshot) => {
       const loadedPosts = snapshot.docs.map(doc => ({
