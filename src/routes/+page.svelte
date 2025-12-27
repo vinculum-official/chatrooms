@@ -6,8 +6,9 @@
   import { GoogleAuthProvider, GithubAuthProvider, signInWithPopup, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'firebase/auth';
   import Dialog from './Dialog.svelte';
   import { marked } from "marked";
-  import { query, collection, where, getDocs, orderBy, serverTimestamp, addDoc, onSnapshot } from 'firebase/firestore';
+  import { query, collection, where, getDocs, doc, getDoc, setDoc, orderBy, serverTimestamp, addDoc, onSnapshot } from 'firebase/firestore';
   import { onMount } from 'svelte';
+  import { goto } from '$app/navigation';
 
   onMount(async () => {
   if (!browser) return;
@@ -19,7 +20,7 @@
     currentUser = u;
     authLoading.set(false);
 
-    if (u) listenToPosts();
+    //  if (u) listenToPosts();
   });
   });
 
@@ -28,30 +29,9 @@
   let dialog;
   let postText;
   let statusMessage = '';
+  let joinCode = '';
+  let errorMessage = '';
 
-  function openDialog() {
-    showDialog = true;
-    dialog.showModal();
-  }
-
-  async function postDialog() {
-    if (postText.trim() === '') return;
-    statusMessage = 'Adding document...';
-    try {
-      const docRef = await addDoc(collection(db, 'messages'), {
-        text: postText,
-        createdAt: serverTimestamp(), // Use serverTimestamp for a reliable creation date
-        createdBy: currentUser.displayName
-      });
-      statusMessage = `Document written with ID: ${docRef.id}`;
-      postText = ''; // Clear input after successful submission
-    } catch (e) {
-      console.error("Error adding document: ", e);
-      statusMessage = `Error adding document: ${e.message}`;
-    }
-    dialog.close();
-    showDialog = false;
-  }
 
   async function loginWithGoogle() {
     if (!browser) return;
@@ -73,69 +53,114 @@
   }
 }
 
-  function listenToPosts() {
-    if (!browser) return;
-
-    // posts ordered from newest to oldest
-
-    const q = query(
-  collection(db, "messages"),
-  orderBy("createdAt", "desc")
-  );
-
-    onSnapshot(q, (snapshot) => {
-      const loadedPosts = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      posts.set(loadedPosts);
-    });
+function generateRoomCode(length = 8) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = '';
+  for (let i = 0; i < length; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)];
   }
+  return code;
+}
+
+async function createRoom(currentUser) {
+  let code;
+  let exists = true;
+
+  while (exists) {
+    code = generateRoomCode();
+    const ref = doc(db, 'rooms', code);
+    const snap = await getDoc(ref);
+    exists = snap.exists();
+  }
+
+  await setDoc(doc(db, 'rooms', code), {
+    createdAt: serverTimestamp(),
+    createdBy: currentUser.uid,
+    isActive: true
+  });
+
+  return code;
+}
+
+async function handleCreateRoom() {
+  if (!currentUser) return;
+
+  try {
+    const code = await createRoom(currentUser);
+    goto(`/room/${code}`);
+  } catch (e) {
+    console.error(e);
+    errorMessage = 'Failed to create room';
+  }
+}
+
+async function handleJoinRoom() {
+  if (!currentUser) return;
+
+  const code = joinCode.trim().toUpperCase();
+  if (code.length !== 8) {
+    errorMessage = 'Room code must be 8 characters';
+    return;
+  }
+
+  try {
+    const ref = doc(db, 'rooms', code);
+    const snap = await getDoc(ref);
+
+    if (!snap.exists()) {
+      errorMessage = 'Room not found';
+      return;
+    }
+
+    goto(`/room/${code}`);
+  } catch (e) {
+    console.error(e);
+    errorMessage = 'Failed to join room';
+  }
+}
+
 </script>
 
 <main>
-    {#if showDialog}
-    <Dialog bind:dialog on:close={() => (showDialog = false)}>
-      <p>Write your post below. Markdown is supported, but no images yet.</p>
-      <textarea
-        bind:value={postText}
-        placeholder="Post text here.."
-        rows="4"
-        cols="30"
-        style="margin: 20px auto;"
-      ></textarea>
-      <br />
-      <button on:click={postDialog}>Post</button>
-    </Dialog>
-    {/if}
-  {#if currentUser}
+{#if currentUser}
   <center>
-    <h2><span class="font-semibold">Welcome back to <span class="[color:#7757FF]">simpl.</span><span class="[color:#1d1d20]">media</span>, {currentUser.displayName}!</span></h2>
+    <h2 class="font-semibold text-2xl">
+      Welcome back to
+      <span class="[color:#7757FF]">chat</span><span class="[color:#1d1d20]">rooms</span>,
+      {currentUser.displayName}!
+    </h2>
+
     <br />
-      <h2 class="text-2xl">Feed</h2>
-      <button on:click={openDialog}>New Post</button>
+
+    <h2 class="text-xl">Create a room</h2>
+    <button on:click={handleCreateRoom}>
+      Generate Room Code
+    </button>
+
+    <br /><br />
+
+    <h2 class="text-xl">Join a room</h2>
+    <input
+      type="text"
+      id="a"
+      maxlength="8"
+      bind:value={joinCode}
+      placeholder="Enter 8-char code"
+      style="text-transform: uppercase; padding: 0.5rem;"
+    />
+
+    <br />
+    <button on:click={handleJoinRoom}>
+      Join Room
+    </button>
+
+    {#if errorMessage}
+      <p style="color: red; margin-top: 1rem;">{errorMessage}</p>
+    {/if}
   </center>
+{:else}
 
-  {#if $posts.length === 0}
-    <p>No posts yet.</p>
-  {/if}
-  {#each $posts as post}
-  <div class=" mx-2 my-4 p-2 rounded-lg shadow" style="background-color: #E5DFC4;">
-    <!-- Username + timestamp -->
-    <div class="flex justify-between text-sm mb-2">
-      <span>{post.createdBy}</span>
-      <span>@ {post.createdAt?.seconds ? new Date(post.createdAt.seconds * 1000).toLocaleString() : 'Just now'}</span>
-    </div>
-
-    <!-- Post content -->
-    <div class="markdown-body">
-      {@html marked(post.text)}
-    </div>
-  </div>
-  {/each}
-  {:else}
-
-  <h2 class="text-2xl">welcome to <span class="font-semibold"><span class="[color:#7757FF]">simpl.</span><span class="[color:#1d1d20]">media</span></span></h2>
+  <h2 class="text-2xl">welcome to <span class="font-semibold"><span class="[color:#7757FF]">chat</span><span class="[color:#1d1d20]">rooms</span></span></h2>
   <button on:click={loginWithGoogle}>
     Login with Google
   </button>
