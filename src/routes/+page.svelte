@@ -169,8 +169,8 @@ async function handleJoinRoom() {
   </button>
   <br />
   <p>By creating an account, you confirm that you are 13 years or older, and you agree to our Privacy Policy and TOS.</p>
-  <a href="/privacy.html" class="underline text-blue-600">Read our Privacy Policy</a>
-  <a href="/tos.html" class="underline text-blue-600">Read our TOS</a>
-  <a href="/cs.html" class="underline text-blue-600">Customer Support</a>
+   / <a href="/privacy.html" class="underline text-blue-600">Read our Privacy Policy</a> / 
+  <a href="/tos.html" class="underline text-blue-600">Read our TOS</a> / 
+  <a href="/cs.html" class="underline text-blue-600">Customer Support</a> / 
   {/if}
 </main>
