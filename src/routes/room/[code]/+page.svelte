@@ -7,7 +7,7 @@
   import { marked } from 'marked';
 
   export let params;
-  let roomCode = params.code;
+  const roomCode = params.code;
 
   let currentUser = null;
   let authReady = false;
@@ -49,23 +49,16 @@
       return;
     }
 
-    try {
-      await addDoc(collection(db, `rooms/${roomCode}/messages`), {
-        text: postText,
-        createdAt: serverTimestamp(),
-        createdBy: currentUser.displayName ?? 'Anonymous'
-      });
+    await addDoc(collection(db, `rooms/${roomCode}/messages`), {
+      text: postText,
+      createdAt: serverTimestamp(),
+      createdBy: currentUser.displayName ?? 'Anonymous'
+    });
 
-      postText = '';
-    } catch (e) {
-      console.error(e);
-      statusMessage = e.message;
-    }
+    postText = '';
   }
 
-  onMount(() => {
-    listenToPosts();
-  });
+  onMount(listenToPosts);
 
   onDestroy(() => {
     unsubscribePosts?.();
@@ -73,17 +66,16 @@
   });
 </script>
 
-
 <svelte:head>
   <title>chatrooms – {roomCode}</title>
 </svelte:head>
 
-<div class="chat-header">
+<!-- HEADER -->
 <div class="chat-header">
   {#if !authReady}
-    <div>Loading auth…</div>
+    <div>Checking session…</div>
   {:else if currentUser}
-    <div>{currentUser.displayName}</div>
+    <div>{currentUser.displayName} / </div>
   {:else}
     <div>Guest</div>
   {/if}
@@ -91,11 +83,12 @@
   <div>Room: {roomCode}</div>
 </div>
 
-  {#if statusMessage}
-    <div class="status-message">{statusMessage}</div>
-  {/if}
-</div>
+<!-- STATUS -->
+{#if statusMessage}
+  <div class="status-message">{statusMessage}</div>
+{/if}
 
+<!-- CHAT FEED -->
 <div class="chat-feed">
   {#if posts.length === 0}
     <p>No messages yet</p>
@@ -104,30 +97,42 @@
   {#each posts as post}
     <div class="chat-message">
       <div style="font-size: 0.8rem; color: #555;">
-        {post.createdBy} @ {post.createdAt?.seconds ? new Date(post.createdAt.seconds * 1000).toLocaleTimeString() : 'Just now'}
+        {post.createdBy}
+        @
+        {post.createdAt?.seconds
+          ? new Date(post.createdAt.seconds * 1000).toLocaleTimeString()
+          : 'Just now'}
       </div>
       <div>{@html marked(post.text)}</div>
     </div>
   {/each}
 </div>
 
-<div class="chat-input">
-  <input id="a" type="text" bind:value={postText} placeholder="Type your message..." on:keydown={(e) => e.key === 'Enter' && postMessage()} />
-  <button on:click={postMessage}>Send</button>
-</div>
+<!-- INPUT -->
+{#if authReady && currentUser}
+  <div class="chat-input">
+    <input
+      bind:value={postText}
+      placeholder="Type your message…"
+      on:keydown={(e) => e.key === 'Enter' && postMessage()}
+    />
+    <button on:click={postMessage}>Send</button>
+  </div>
+{:else if authReady}
+  <p class="guest-hint">Sign in to send messages.</p>
+{/if}
 
 <footer>
   <nav>
     <center>
-    <span class="spacer">/</span>
-    <a href="/">home</a>
-    <span class="spacer0">/</span>
-    <a href="/cs.html">customer service</a>
-    <span class="spacer1">/</span>
-    <a href="/tos.html">terms of service</a>
-    <span class="spacer3">/</span>
-    <a href="/privacy.html">privacy policy</a>
-    <span class="spacer4">/</span>
+      <span>/</span>
+      <a href="/">home</a>
+      <span>/</span>
+      <a href="/cs.html">customer service</a>
+      <span>/</span>
+      <a href="/tos.html">terms of service</a>
+      <span>/</span>
+      <a href="/privacy.html">privacy policy</a>
     </center>
   </nav>
 </footer>
