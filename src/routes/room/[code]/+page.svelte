@@ -75,7 +75,7 @@
   {#if !authReady}
     <div>Checking session…</div>
   {:else if currentUser}
-    <div>{currentUser.displayName} / </div>
+    <div>{currentUser.displayName}</div>
   {:else}
     <div>Guest</div>
   {/if}
