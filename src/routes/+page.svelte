@@ -157,6 +157,12 @@ async function handleJoinRoom() {
     {#if errorMessage}
       <p style="color: red; margin-top: 1rem;">{errorMessage}</p>
     {/if}
+
+   / <a href="/privacy.html" class="underline text-blue-600">Read our Privacy Policy</a> / 
+  <a href="/tos.html" class="underline text-blue-600">Read our TOS</a> / 
+  <a href="/cs.html" class="underline text-blue-600">Customer Support</a> / 
+
+<p>if you want to report anything, please email me at: <a href="mailto:m4.sh@tuta.io">m4.sh@tuta.io (mailto link)</a></p>
   </center>
 {:else}
 
