@@ -157,7 +157,7 @@ async function handleJoinRoom() {
     {#if errorMessage}
       <p style="color: red; margin-top: 1rem;">{errorMessage}</p>
     {/if}
-<br />
+<br /><br />
 
    / <a href="/privacy.html" class="underline text-blue-600">Read our Privacy Policy</a> / 
   <a href="/tos.html" class="underline text-blue-600">Read our TOS</a> / 
