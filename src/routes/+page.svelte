@@ -121,6 +121,11 @@ async function handleJoinRoom() {
 
 </script>
 
+<svelte:head>
+  <title>chatrooms</title>
+</svelte:head>
+
+
 <main>
 {#if currentUser}
   <center>
