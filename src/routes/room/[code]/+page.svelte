@@ -33,20 +33,27 @@
     });
   }
 
-  async function postMessage() {
-    if (!postText.trim()) return;
-    try {
-      await addDoc(collection(db, `rooms/${roomCode}/messages`), {
-        text: postText,
-        createdAt: serverTimestamp(),
-        createdBy: currentUser.displayName
-      });
-      postText = '';
-    } catch (e) {
-      console.error("Error posting message:", e);
-      statusMessage = e.message;
-    }
+async function postMessage() {
+  if (!postText.trim()) return;
+
+  if (!currentUser) {
+    statusMessage = "You must be signed in to send messages.";
+    return;
   }
+
+  try {
+    await addDoc(collection(db, `rooms/${roomCode}/messages`), {
+      text: postText,
+      createdAt: serverTimestamp(),
+      createdBy: currentUser.displayName ?? "Anonymous"
+    });
+
+    postText = '';
+  } catch (e) {
+    console.error("Error posting message:", e);
+    statusMessage = e.message;
+  }
+}
 
   onMount(() => {
     listenToPosts();
