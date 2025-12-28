@@ -67,6 +67,10 @@ main {
     font-family: 'Bricolage Grotesque', sans-serif;
   }
 
+a {
+  text-decoration-line: underline;
+}
+
   button:hover {
     background: #cdd9db;
   }
