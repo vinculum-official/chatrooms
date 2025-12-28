@@ -53,6 +53,10 @@
   });
 </script>
 
+<svelte:head>
+  <title>chatrooms – {roomCode}</title>
+</svelte:head>
+
 <div class="chat-header">
   <div>{currentUser?.displayName}</div>
   <div>Room: {roomCode}</div>
