@@ -2,7 +2,7 @@
   import { posts } from '../lib/stores.js'; // <- import it
   import { browser } from '$app/environment'; // or remove if no alias
   import { auth, db } from '../lib/firebase.js';
-  import { user, authReady } from '../lib/stores.js';
+  import { user, authLoading } from '../lib/stores.js';
   import { GoogleAuthProvider, GithubAuthProvider, signInWithPopup, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'firebase/auth';
   import Dialog from './Dialog.svelte';
   import { marked } from "marked";
