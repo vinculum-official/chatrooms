@@ -6,7 +6,6 @@
   import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
   import { query, collection, orderBy, addDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
-  import { marked } from 'marked';
 
   export let params;
   let roomCode = params.code;
@@ -120,7 +119,7 @@
           : 'Just now'}
       </div>
 
-      <div>{@html marked(post.text)}</div>
+      <div>{post.text}</div>
     </div>
   {/each}
 </div>
@@ -142,13 +141,13 @@
   <nav>
     <center>
       <span>/</span>
-      <a href="/">home</a>
+      <a href={resolve('/')}>home</a>
       <span>/</span>
-      <a href="/cs.html">customer service</a>
+      <a href={resolve('/cs.html')}>customer service</a>
       <span>/</span>
-      <a href="/tos.html">terms of service</a>
+      <a href={resolve('/tos.html')}>terms of service</a>
       <span>/</span>
-      <a href="/privacy.html">privacy policy</a>
+      <a href={resolve('/privacy.html')}>privacy policy</a>
     </center>
   </nav>
 </footer>
