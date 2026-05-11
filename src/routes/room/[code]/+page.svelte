@@ -3,17 +3,19 @@
   import { db } from '$lib/firebase.js';
   import { user } from '$lib/stores.js';
   import { onMount, onDestroy } from 'svelte';
+  import { goto } from '$app/navigation';
+  import { resolve } from '$app/paths';
   import { query, collection, orderBy, addDoc, serverTimestamp, onSnapshot } from 'firebase/firestore';
   import { marked } from 'marked';
 
   export let params;
-  const roomCode = params.code;
+  let roomCode = params.code;
 
   let currentUser = null;
   let authReady = false;
 
   const unsubscribeUser = user.subscribe(u => {
-    if (u === undefined) return; // auth still loading
+    if (u === undefined) return;
     currentUser = u;
     authReady = true;
   });
@@ -49,16 +51,33 @@
       return;
     }
 
-    await addDoc(collection(db, `rooms/${roomCode}/messages`), {
-      text: postText,
-      createdAt: serverTimestamp(),
-      createdBy: currentUser.displayName ?? 'Anonymous'
-    });
+    try {
+      await addDoc(collection(db, `rooms/${roomCode}/messages`), {
+        text: postText,
+        createdAt: serverTimestamp(),
+        createdBy: currentUser.displayName ?? 'Anonymous'
+      });
 
-    postText = '';
+      postText = '';
+    } catch (e) {
+      console.error(e);
+      statusMessage = e.message;
+    }
   }
 
-  onMount(listenToPosts);
+  onMount(() => {
+    if (!browser) return;
+
+    const allowedRoom = sessionStorage.getItem('lastRoomCode');
+
+    if (allowedRoom !== roomCode) {
+      sessionStorage.setItem('roomRedirectCode', roomCode);
+      goto(resolve(`/?code=${roomCode}`), { replaceState: true });
+      return;
+    }
+
+    listenToPosts();
+  });
 
   onDestroy(() => {
     unsubscribePosts?.();
@@ -70,7 +89,6 @@
   <title>chatrooms – {roomCode}</title>
 </svelte:head>
 
-<!-- HEADER -->
 <div class="chat-header">
   {#if !authReady}
     <div>Checking session…</div>
@@ -83,18 +101,16 @@
   <div>Room: {roomCode}</div>
 </div>
 
-<!-- STATUS -->
 {#if statusMessage}
   <div class="status-message">{statusMessage}</div>
 {/if}
 
-<!-- CHAT FEED -->
 <div class="chat-feed">
   {#if posts.length === 0}
     <p>No messages yet</p>
   {/if}
 
-  {#each posts as post}
+  {#each posts as post (post.id)}
     <div class="chat-message">
       <div style="font-size: 0.8rem; color: #555;">
         {post.createdBy}
@@ -103,23 +119,23 @@
           ? new Date(post.createdAt.seconds * 1000).toLocaleTimeString()
           : 'Just now'}
       </div>
+
       <div>{@html marked(post.text)}</div>
     </div>
   {/each}
 </div>
 
-<!-- INPUT -->
 {#if authReady && currentUser}
   <div class="chat-input">
     <input
       bind:value={postText}
-      placeholder="Type your message…"
+      placeholder="Type your message..."
       on:keydown={(e) => e.key === 'Enter' && postMessage()}
     />
     <button on:click={postMessage}>Send</button>
   </div>
 {:else if authReady}
-  <p class="guest-hint">Sign in to send messages.</p>
+  <p>Sign in to send messages.</p>
 {/if}
 
 <footer>

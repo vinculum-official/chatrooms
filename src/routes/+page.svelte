@@ -1,34 +1,39 @@
 <script>
-  import { posts } from '../lib/stores.js'; // <- import it
-  import { browser } from '$app/environment'; // or remove if no alias
+  import { browser } from '$app/environment';
   import { auth, db } from '../lib/firebase.js';
   import { user, authLoading } from '../lib/stores.js';
   import { GoogleAuthProvider, GithubAuthProvider, signInWithPopup, onAuthStateChanged, setPersistence, browserLocalPersistence } from 'firebase/auth';
-  import Dialog from './Dialog.svelte';
-  import { marked } from "marked";
-  import { query, collection, where, getDocs, doc, getDoc, setDoc, orderBy, serverTimestamp, addDoc, onSnapshot } from 'firebase/firestore';
+  import { resolve } from '$app/paths';
+  import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
 
   onMount(async () => {
-  if (!browser) return;
+    if (!browser) return;
 
-  await setPersistence(auth, browserLocalPersistence);
+    const params = new URLSearchParams(window.location.search);
+    const codeFromQuery = params.get('code')?.trim().toUpperCase();
 
-  onAuthStateChanged(auth, (u) => {
-    user.set(u);
-    currentUser = u;
-    authLoading.set(false);
+    if (codeFromQuery) {
+      joinCode = codeFromQuery;
+      history.replaceState({}, '', window.location.pathname);
+    } else {
+      const redirectCode = sessionStorage.getItem('roomRedirectCode');
+      if (redirectCode) {
+        joinCode = redirectCode.toUpperCase();
+        sessionStorage.removeItem('roomRedirectCode');
+      }
+    }
 
-    //  if (u) listenToPosts();
-  });
+    await setPersistence(auth, browserLocalPersistence);
+
+    onAuthStateChanged(auth, (u) => {
+      user.set(u);
+      currentUser = u;
+      authLoading.set(false);
+    });
   });
 
   let currentUser;
-  let showDialog = false;
-  let dialog;
-  let postText;
-  let statusMessage = '';
   let joinCode = '';
   let errorMessage = '';
 
@@ -87,7 +92,8 @@ async function handleCreateRoom() {
 
   try {
     const code = await createRoom(currentUser);
-    goto(`/room/${code}`);
+    sessionStorage.setItem('lastRoomCode', code);
+    window.location.assign(`/room/${code}`);
   } catch (e) {
     console.error(e);
     errorMessage = 'Failed to create room';
@@ -112,7 +118,8 @@ async function handleJoinRoom() {
       return;
     }
 
-    goto(`/room/${code}`);
+    sessionStorage.setItem('lastRoomCode', code);
+    window.location.assign(`/room/${code}`);
   } catch (e) {
     console.error(e);
     errorMessage = 'Failed to join room';
@@ -131,7 +138,7 @@ async function handleJoinRoom() {
   <center>
     <h2 class="font-semibold text-2xl">
       Welcome back to
-      <span class="[color:#7757FF]">chat</span><span class="[color:#1d1d20]">rooms</span>,
+      <span class="text-[#7757FF]">chat</span><span class="text-[#1d1d20]">rooms</span>,
       {currentUser.displayName}!
     </h2>
 
@@ -164,15 +171,15 @@ async function handleJoinRoom() {
     {/if}
 <br /><br />
 
-   / <a href="/privacy.html" class="underline text-blue-600">Read our Privacy Policy</a> / 
-  <a href="/tos.html" class="underline text-blue-600">Read our TOS</a> / 
-  <a href="/cs.html" class="underline text-blue-600">Customer Support</a> / 
+   / <a href={resolve('/privacy.html')} class="underline text-blue-600">Read our Privacy Policy</a> / 
+  <a href={resolve('/tos.html')} class="underline text-blue-600">Read our ToS</a> / 
+  <a href={resolve('/cs.html')} class="underline text-blue-600">Customer Support</a> / 
 
 <p>if you want to report anything, please email me at: <a href="mailto:m4.sh@tuta.io">m4.sh@tuta.io (mailto link)</a></p>
   </center>
 {:else}
 
-  <h2 class="text-2xl">welcome to <span class="font-semibold"><span class="[color:#7757FF]">chat</span><span class="[color:#1d1d20]">rooms</span></span></h2>
+  <h2 class="text-2xl">welcome to <span class="font-semibold"><span class="text-[#7757FF]">chat</span><span class="text-[#1d1d20]">rooms</span></span></h2>
   <button on:click={loginWithGoogle}>
     Login with Google
   </button>
@@ -181,8 +188,8 @@ async function handleJoinRoom() {
   </button>
   <br />
   <p>By creating an account, you confirm that you are 13 years or older, and you agree to our Privacy Policy and TOS.</p>
-   / <a href="/privacy.html" class="underline text-blue-600">Read our Privacy Policy</a> / 
-  <a href="/tos.html" class="underline text-blue-600">Read our TOS</a> / 
-  <a href="/cs.html" class="underline text-blue-600">Customer Support</a> / 
+   / <a href={resolve('/privacy.html')} class="underline text-blue-600">Read our Privacy Policy</a> / 
+  <a href={resolve('/tos.html')} class="underline text-blue-600">Read our TOS</a> / 
+  <a href={resolve('/cs.html')} class="underline text-blue-600">Customer Support</a> / 
   {/if}
 </main>
